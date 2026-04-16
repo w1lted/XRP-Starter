@@ -17,7 +17,8 @@ public class Robot extends TimedRobot {
   
   private XRPMotor m_leftMotor = new XRPMotor(0);
   private XRPMotor m_rightMotor = new XRPMotor(1);
-  //create encoders here
+  private Encoder m_leftEncoder = new Encoder(4,5);
+  private Encoder m_rightEncoder = new Encoder(6,7);
   private XRPServo m_servo = new XRPServo(4);
 
   //constructor
@@ -29,9 +30,30 @@ public class Robot extends TimedRobot {
     m_rightMotor.setInverted(true);
   }
 
+  public double getAvgDistance(){  
+    double left = m_leftEncoder.getDistance();
+    double right = m_rightEncoder.getDistance();
+    return (left + right) / 2.0;
+  }
+
   public void drive(double speed){  
     m_leftMotor.set(speed);
     m_rightMotor.set(speed);
+  }
+
+  public void turnLeft(double speed) {
+    m_leftMotor.set(-speed)
+    m_rightMotor.set(speed)
+  }
+
+  public void turnRight(double speed) {
+    m_leftMotor.set(speed)
+    m_rightMotor.set(-speed)
+  }
+
+  public void reset() { 
+    m_leftEncoder.reset()
+    m_rightEncoder.reset()
   }
 
   @Override
@@ -62,11 +84,24 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    drive(.23);
-    m_servo.setAngle(270);
+    reset()
+    }
+  
+
+
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
-}
+  public void teleopPeriodic() {
+    m_servo.setAngle(270);
+    while (getAvgDistance() < 30.0) { 
+      drive(.5);
+    }
+    turnLeft(0.5);
+    reset()
+  }
+
+ 
+  
+

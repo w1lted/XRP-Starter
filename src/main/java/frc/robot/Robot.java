@@ -1,7 +1,11 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.xrp.XRPMotor;
@@ -20,6 +24,8 @@ public class Robot extends TimedRobot {
   private Encoder m_leftEncoder = new Encoder(4,5);
   private Encoder m_rightEncoder = new Encoder(6,7);
   private XRPServo m_servo = new XRPServo(4);
+  private XboxController m_controller = new XboxController(0);
+  private Ultrasonic m_ultrasonic = new Ultrasonic(2, 3);
 
 
 
@@ -30,6 +36,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     
     m_rightMotor.setInverted(true);
+  }
+
+  public double getTicks(double inches){ 
+    return (inches*78);
   }
 
   public double getAvgDistance(){  
@@ -87,6 +97,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     reset();
+    m_ultrasonic.setEnabled(true);
   }
   
 
@@ -94,15 +105,19 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // m_servo.setAngle(270);
-    if (getAvgDistance() < 500.0) { 
-      drive(.5);
-    } else {
-      drive(0.0);
-    }
-    // turnLeft(0.5);
-    // reset(); 
-    // drive(0.5);
-   }
+    m_leftMotor.set((-m_controller.getLeftY()));
+    m_rightMotor.set((-m_controller.getRightY()));
+    
+    System.out.println(m_ultrasonic.getRangeInches());
+
+    /*if (m_ultrasonic.getRangeInches() < 1) {
+      drive(-0.1);
+      reset();
+      if (getTicks(3) < getAvgDistance()) {  
+        drive(0);
+      }
+    } */
+  }
   } 
   
 
